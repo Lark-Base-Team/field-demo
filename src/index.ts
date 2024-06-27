@@ -5,7 +5,7 @@ const { t } = field;
 basekit.addField({
   i18n: {
     messages: {
-      'zh': {
+      'zh-CN': {
         popoverDesc: 'popover描述',
         attachmentLabel: '请选择附件字段',
         invoiceNumber: '发票号码',
