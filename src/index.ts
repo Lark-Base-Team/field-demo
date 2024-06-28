@@ -49,7 +49,7 @@ basekit.addField({
     // })
 
     const title = attachments?.[0]?.name;
-    if (title.includes('出租车')) {
+    if (title?.includes('出租车')) {
       return {
         code: 0, // 0 表示请求成功
         // data 类型需与下方 resultType 定义一致
