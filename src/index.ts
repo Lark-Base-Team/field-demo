@@ -1,11 +1,11 @@
-import { basekit, FieldType, field, FieldComponent, AuthorizationType, FieldCode } from '@lark-opdev/block-basekit-server-api';
+import { basekit, FieldType, field, FieldComponent, AuthorizationType, FieldCode, NumberFormatter, DateFormatter } from '@lark-opdev/block-basekit-server-api';
 
 const { t } = field;
 
 basekit.addField({
   authorizations: [
     {
-      id: 'nolibox',
+      id: 'demo',
       type: AuthorizationType.Basic,
       params: {
         usernamePlaceholder: '请输入用户名',
@@ -15,7 +15,7 @@ basekit.addField({
   ],
   i18n: {
     messages: {
-      'zh': {
+      'zh-CN': {
         scene: '场景',
         library: '图书馆',
         popoverDesc: 'popover描述',
@@ -24,7 +24,11 @@ basekit.addField({
         name: '附件名称',
         size: '附件尺寸',
         date: '附件时间戳',
+        tipsImageUrl: 'https://lf3-static.bytednsdoc.com/obj/eden-cn/eqgeh7upeubqnulog/chatbot.svg',
       },
+      'en-US': {
+        tipsImageUrl: 'https://lf3-static.bytednsdoc.com/obj/eden-cn/eqgeh7upeubqnulog/chatbot.svg',
+      }
     }
   },
   formItems: [
@@ -52,10 +56,9 @@ basekit.addField({
   ],
   // formItemParams 为运行时传入的字段参数，对应字段配置里的 formItems （如引用的依赖字段、授权信息）
   execute: async (formItemParams, context) => {
-    console.log("🚀 ~ execute: ~ formItemParams, context:", formItemParams, context)
     const { scene, attachments } = formItemParams;
     try {
-      await context.fetch('htts://demo.api', {}, 'nolibox');
+      await context.fetch('htts://demo.api', {}, 'demo');
     } catch(e) {
       console.log(e);
     }
@@ -80,10 +83,8 @@ basekit.addField({
   resultType: {
     type: FieldType.Object,
     extra: {
-      icon: 'https://lf3-static.bytednsdoc.com/obj/eden-cn/eqgeh7upeubqnulog/chatbot.svg',
-      tips: {
-        imageUrl: 'https://lf3-static.bytednsdoc.com/obj/eden-cn/eqgeh7upeubqnulog/chatbot.svg',
-        desc: t('popoverDesc'),
+      icon: {
+        light: 'https://lf3-static.bytednsdoc.com/obj/eden-cn/eqgeh7upeubqnulog/chatbot.svg',
       },
       properties: [
         {
@@ -108,7 +109,7 @@ basekit.addField({
           type: FieldType.Number,
           title: t('size'),
           extra: {
-            formatter: '0.00', // 保留两位小数
+            formatter: NumberFormatter.DIGITAL_ROUNDED_1, // 保留两位小数
           },
         },
         {
@@ -116,7 +117,7 @@ basekit.addField({
           type: FieldType.DateTime,
           title: t('date'),
           extra: {
-            dateFormat: 'yyyy/MM/dd',
+            dateFormat: DateFormatter.DATE_YMD_WITH_SLASH,
           }
         },
       ],
