@@ -1,8 +1,18 @@
-import { basekit, FieldType, field, FieldComponent } from '@lark-opdev/block-basekit-server-api';
+import { basekit, FieldType, field, FieldComponent, AuthorizationType, FieldCode } from '@lark-opdev/block-basekit-server-api';
 
 const { t } = field;
 
 basekit.addField({
+  authorizations: [
+    {
+      id: 'nolibox',
+      type: AuthorizationType.Basic,
+      params: {
+        usernamePlaceholder: '请输入用户名',
+        passwordPlaceholder: '请输入密码',
+      }
+    }
+  ],
   i18n: {
     messages: {
       'zh': {
@@ -10,10 +20,10 @@ basekit.addField({
         library: '图书馆',
         popoverDesc: 'popover描述',
         attachmentLabel: '请选择附件字段',
-        invoiceNumber: '发票号码',
-        invoiceTitle: '发票抬头',
-        invoiceDate: '开票日期',
-        invoiceValue: '发票金额',
+        token: '附件 token',
+        name: '附件名称',
+        size: '附件尺寸',
+        date: '附件时间戳',
       },
     }
   },
@@ -27,9 +37,6 @@ basekit.addField({
           { label: t('library'), value: 'library' },
         ]
       },
-      validator: {
-        required: true,
-      }
     },
     {
       key: 'attachments',
@@ -45,27 +52,29 @@ basekit.addField({
   ],
   // formItemParams 为运行时传入的字段参数，对应字段配置里的 formItems （如引用的依赖字段、授权信息）
   execute: async (formItemParams, context) => {
-    const { apikey, attachments } = formItemParams;
-
-    // 您可以通过 context.fetch 向外请求数据
-    // const res = await context.fetch('https://demo.api', {
-    //   method: 'POSt',
-    //   body: JSON.stringify({
-    //     imageUrl: attachments.temp_url,
-    //   }),
-    // })
-
+    console.log("🚀 ~ execute: ~ formItemParams, context:", formItemParams, context)
+    const { scene, attachments } = formItemParams;
+    try {
+      await context.fetch('htts://demo.api', {}, 'nolibox');
+    } catch(e) {
+      console.log(e);
+    }
+    const attachment = attachments?.[0];
+    if (attachment) {
+      return {
+        code: FieldCode.Success, // 0 表示请求成功
+        // data 类型需与下方 resultType 定义一致
+        data: {
+          id: attachment.token, // 附件 token
+          primaryProperty: attachment.token,
+          name: attachment.name, // 附件名称
+          size: attachment.size, // 附件尺寸
+          date: attachment.timeStamp, // 附件时间戳
+        },
+      };
+    }
     return {
-      code: 0, // 0 表示请求成功
-      // data 类型需与下方 resultType 定义一致
-      data: {
-        id: 1011002000211,
-        primaryProperty: 1011002000211,
-        number: 1011002000211,
-        title: attachments?.[0]?.name, // 发票抬头的实际值
-        date: 1717678604284, // 发票日期
-        amount: 2081121, // 发票金额
-      },
+      code: FieldCode.Error,
     };
   },
   resultType: {
@@ -74,7 +83,7 @@ basekit.addField({
       icon: 'https://lf3-static.bytednsdoc.com/obj/eden-cn/eqgeh7upeubqnulog/chatbot.svg',
       tips: {
         imageUrl: 'https://lf3-static.bytednsdoc.com/obj/eden-cn/eqgeh7upeubqnulog/chatbot.svg',
-        desc: '我是描述',
+        desc: t('popoverDesc'),
       },
       properties: [
         {
@@ -85,33 +94,30 @@ basekit.addField({
         },
         {
           key: 'primaryProperty',
-          type: FieldType.Number,
-          title: t('invoiceNumber'),
+          type: FieldType.Text,
+          title: t('token'),
           primary: true,
-          extra: {
-            formatter: '0'
-          },
         },
         {
-          key: 'title',
+          key: 'name',
           type: FieldType.Text,
-          title: t('invoiceTitle'),
+          title: t('name'),
+        },
+        {
+          key: 'size',
+          type: FieldType.Number,
+          title: t('size'),
+          extra: {
+            formatter: '0.00', // 保留两位小数
+          },
         },
         {
           key: 'date',
           type: FieldType.DateTime,
-          title: t('invoiceDate'),
+          title: t('date'),
           extra: {
             dateFormat: 'yyyy/MM/dd',
           }
-        },
-        {
-          key: 'amount',
-          type: FieldType.Number,
-          title: t('invoiceValue'),
-          extra: {
-            formatter: '0.00', // 保留两位小数
-          },
         },
       ],
     },
