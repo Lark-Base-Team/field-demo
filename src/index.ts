@@ -47,22 +47,22 @@ basekit.addField({
   // formItemParams 为运行时传入的字段参数，对应字段配置里的 formItems （如引用的依赖字段）
   execute: async (formItemParams, context) => {
     const { scene, attachments } = formItemParams;
-    try {
-      await context.fetch('htts://demo.api', {}, 'demo');
-    } catch(e) {
-      console.log(e);
-    }
+    // try {
+    //   await context.fetch('htts://demo.api', {}, 'demo');
+    // } catch(e) {
+    //   console.log(e);
+    // }
     const attachment = attachments?.[0];
     if (attachment) {
+
       return {
         code: FieldCode.Success, // 0 表示请求成功
         // data 类型需与下方 resultType 定义一致
         data: {
-          id: attachment.token, // 附件 token
-          primaryProperty: attachment.token,
+          id: attachment.tmp_url ?? '', //  附件临时 url
+          primaryProperty: attachment.tmp_url ?? '', // 附件临时 url
           name: attachment.name, // 附件名称
           size: attachment.size, // 附件尺寸
-          date: attachment.timeStamp, // 附件时间戳
         },
       };
     }
@@ -101,14 +101,6 @@ basekit.addField({
           extra: {
             formatter: NumberFormatter.DIGITAL_ROUNDED_1, // 保留两位小数
           },
-        },
-        {
-          key: 'date',
-          type: FieldType.DateTime,
-          title: t('date'),
-          extra: {
-            dateFormat: DateFormatter.DATE_YMD_WITH_SLASH,
-          }
         },
       ],
     },
