@@ -1,18 +1,8 @@
-import { basekit, FieldType, field, FieldComponent, AuthorizationType, FieldCode, NumberFormatter, DateFormatter } from '@lark-opdev/block-basekit-server-api';
+import { basekit, FieldType, field, FieldComponent, FieldCode, NumberFormatter, DateFormatter } from '@lark-opdev/block-basekit-server-api';
 
 const { t } = field;
 
 basekit.addField({
-  authorizations: [
-    {
-      id: 'demo',
-      type: AuthorizationType.Basic,
-      params: {
-        usernamePlaceholder: '请输入用户名',
-        passwordPlaceholder: '请输入密码',
-      }
-    }
-  ],
   i18n: {
     messages: {
       'zh-CN': {
