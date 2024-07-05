@@ -1,4 +1,4 @@
-import { basekit, FieldType, field, FieldComponent, FieldCode, NumberFormatter, DateFormatter } from '@lark-opdev/block-basekit-server-api';
+import { basekit, FieldType, field, FieldComponent, FieldCode, NumberFormatter } from '@lark-opdev/block-basekit-server-api';
 
 const { t } = field;
 
@@ -6,32 +6,16 @@ basekit.addField({
   i18n: {
     messages: {
       'zh-CN': {
-        scene: '场景',
-        library: '图书馆',
-        popoverDesc: 'popover描述',
         attachmentLabel: '请选择附件字段',
-        token: '附件 token',
+        url: '附件地址',
         name: '附件名称',
         size: '附件尺寸',
-        date: '附件时间戳',
-        tipsImageUrl: 'https://lf3-static.bytednsdoc.com/obj/eden-cn/eqgeh7upeubqnulog/chatbot.svg',
       },
-      'en-US': {
-        tipsImageUrl: 'https://lf3-static.bytednsdoc.com/obj/eden-cn/eqgeh7upeubqnulog/chatbot.svg',
-      }
+      'en-US': {},
+      'ja-JP': {},
     }
   },
   formItems: [
-    {
-      key: 'scene',
-      label: t('scene'),
-      component: FieldComponent.SingleSelect,
-      props: {
-        options: [
-          { label: t('library'), value: 'library' },
-        ]
-      },
-    },
     {
       key: 'attachments',
       label: t('attachmentLabel'),
@@ -46,12 +30,7 @@ basekit.addField({
   ],
   // formItemParams 为运行时传入的字段参数，对应字段配置里的 formItems （如引用的依赖字段）
   execute: async (formItemParams, context) => {
-    const { scene, attachments } = formItemParams;
-    // try {
-    //   await context.fetch('htts://demo.api', {}, 'demo');
-    // } catch(e) {
-    //   console.log(e);
-    // }
+    const { attachments } = formItemParams;
     const attachment = attachments?.[0];
     if (attachment) {
 
@@ -60,9 +39,9 @@ basekit.addField({
         // data 类型需与下方 resultType 定义一致
         data: {
           id: attachment.tmp_url ?? '', //  附件临时 url
-          primaryProperty: attachment.tmp_url ?? '', // 附件临时 url
-          name: attachment.name, // 附件名称
-          size: attachment.size, // 附件尺寸
+          url: attachment.tmp_url ?? '', // 附件临时 url
+          name: attachment?.name, // 附件名称
+          size: attachment?.size, // 附件尺寸
         },
       };
     }
@@ -84,9 +63,9 @@ basekit.addField({
           hidden: true,
         },
         {
-          key: 'primaryProperty',
+          key: 'url',
           type: FieldType.Text,
-          title: t('token'),
+          title: t('url'),
           primary: true,
         },
         {
