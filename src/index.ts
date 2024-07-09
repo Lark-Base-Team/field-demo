@@ -2,26 +2,23 @@ import { basekit, FieldType, field, FieldComponent, FieldCode, NumberFormatter }
 
 const { t } = field;
 
+basekit.addDomainList(['api.exchangerate-api.com']);
+
 basekit.addField({
   i18n: {
     messages: {
-      'zh-CN': {
-        attachmentLabel: '请选择附件字段',
-        url: '附件地址',
-        name: '附件名称',
-        size: '附件尺寸',
-      },
+      'zh-CN': {},
       'en-US': {},
       'ja-JP': {},
     }
   },
   formItems: [
     {
-      key: 'attachments',
-      label: t('attachmentLabel'),
+      key: 'account',
+      label: '人民币金额',
       component: FieldComponent.FieldSelect,
       props: {
-        supportType: [FieldType.Attachment],
+        supportType: [FieldType.Number],
       },
       validator: {
         required: true,
@@ -29,25 +26,27 @@ basekit.addField({
     },
   ],
   // formItemParams 为运行时传入的字段参数，对应字段配置里的 formItems （如引用的依赖字段）
-  execute: async (formItemParams, context) => {
-    const { attachments } = formItemParams;
-    const attachment = attachments?.[0];
-    if (attachment) {
-
+  execute: async (formItemParams: { account: number }, context) => {
+    const { account = 0 } = formItemParams;
+    try {
+      const res = await context.fetch('https://api.exchangerate-api.com/v4/latest/CNY', {
+        method: 'GET',
+      }).then(res => res.json());
+      const rates = res?.rates;
+      const usdRate = rates?.['USD'];
       return {
-        code: FieldCode.Success, // 0 表示请求成功
-        // data 类型需与下方 resultType 定义一致
+        code: FieldCode.Success,
         data: {
-          id: attachment.tmp_url ?? '', //  附件临时 url
-          url: attachment.tmp_url ?? '', // 附件临时 url
-          name: attachment?.name, // 附件名称
-          size: attachment?.size, // 附件尺寸
-        },
-      };
+          id: `${Math.random()}`,
+          usd: parseFloat((account * usdRate).toFixed(4)),
+          rate: usdRate,
+        }
+      }
+    } catch (e) {
+      return {
+        code: FieldCode.Error,
+      }
     }
-    return {
-      code: FieldCode.Error,
-    };
   },
   resultType: {
     type: FieldType.Object,
@@ -63,23 +62,21 @@ basekit.addField({
           hidden: true,
         },
         {
-          key: 'url',
-          type: FieldType.Text,
-          title: t('url'),
-          primary: true,
-        },
-        {
-          key: 'name',
-          type: FieldType.Text,
-          title: t('name'),
-        },
-        {
-          key: 'size',
+          key: 'usd',
           type: FieldType.Number,
-          title: t('size'),
+          title: '美元金额',
+          primary: true,
           extra: {
-            formatter: NumberFormatter.DIGITAL_ROUNDED_1, // 保留两位小数
-          },
+            formatter: NumberFormatter.DIGITAL_ROUNDED_2,
+          }
+        },
+        {
+          key: 'rate',
+          type: FieldType.Number,
+          title: '汇率',
+          extra: {
+            formatter: NumberFormatter.DIGITAL_ROUNDED_4,
+          }
         },
       ],
     },
