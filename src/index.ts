@@ -7,15 +7,27 @@ basekit.addDomainList(['api.exchangerate-api.com']);
 basekit.addField({
   i18n: {
     messages: {
-      'zh-CN': {},
-      'en-US': {},
-      'ja-JP': {},
+      'zh-CN': {
+        'rmb': '人民币金额',
+        'usd': '美元金额',
+        'rate': '汇率',
+      },
+      'en-US': {
+        'rmb': 'RMB Amount',
+        'usd': 'Dollar amount',
+        'rate': 'Exchange Rate',
+      },
+      'ja-JP': {
+        'rmb': '人民元の金額',
+        'usd': 'ドル金額',
+        'rate': '為替レート',
+      },
     }
   },
   formItems: [
     {
       key: 'account',
-      label: '人民币金额',
+      label: t('rmb'),
       component: FieldComponent.FieldSelect,
       props: {
         supportType: [FieldType.Number],
@@ -32,8 +44,7 @@ basekit.addField({
       const res = await context.fetch('https://api.exchangerate-api.com/v4/latest/CNY', {
         method: 'GET',
       }).then(res => res.json());
-      const rates = res?.rates;
-      const usdRate = rates?.['USD'];
+      const usdRate = res?.rates?.['USD'];
       return {
         code: FieldCode.Success,
         data: {
@@ -64,7 +75,7 @@ basekit.addField({
         {
           key: 'usd',
           type: FieldType.Number,
-          title: '美元金额',
+          title: t('usd'),
           primary: true,
           extra: {
             formatter: NumberFormatter.DIGITAL_ROUNDED_2,
@@ -73,7 +84,7 @@ basekit.addField({
         {
           key: 'rate',
           type: FieldType.Number,
-          title: '汇率',
+          title: t('rate'),
           extra: {
             formatter: NumberFormatter.DIGITAL_ROUNDED_4,
           }
