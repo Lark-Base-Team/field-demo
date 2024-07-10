@@ -17,19 +17,20 @@ basekit.addField({
   // formItemParams 为运行时传入的字段参数，对应字段配置里的 formItems （如引用的依赖字段）
   execute: async (formItemParams, context) => {
     const { url } = formItemParams;
-    if (url) {
+    if (Array.isArray(url)) {
       return {
         code: FieldCode.Success, // 0 表示请求成功
         // data 类型需与下方 resultType 定义一致
-        data: {
-          files: [
-            {
-              name: "图片1.jpg",
-              content: url[0].link,
-              contentType: "URL"
-            }
-          ]
-        },
+        data: (url.map(({ link }, index) => {
+          if (!link) {
+            return undefined
+          }
+          return {
+            name: '随机名字' + index + "图片1.jpg",
+            content: link,
+            contentType: "URL"
+          }
+        })).filter((v) => v)
       };
     }
     return {
@@ -38,21 +39,6 @@ basekit.addField({
   },
   resultType: {
     type: FieldType.Attachment,
-    extra: {
-      icon: {
-        light: 'https://cdn.pixabay.com/photo/2023/06/11/01/24/flowers-8055013_1280.jpg'
-      },
-      properties: [{
-        key: "id",
-        type: FieldType.Text,
-        title: 'id',
-      }, {
-        key: "id2",
-        type: FieldType.Text,
-        title: '主属性',
-        primary: true,
-      }]
-    }
   },
 });
 export default basekit;
