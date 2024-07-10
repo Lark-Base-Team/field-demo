@@ -1,38 +1,35 @@
 import { basekit, FieldType, field, FieldComponent, FieldCode, NumberFormatter, AuthorizationType } from '@lark-opdev/block-basekit-server-api';
 const { t } = field;
+
+basekit.addDomainList(['api.exchangerate-api.com']);
+
 basekit.addField({
-  // authorizations: [
-  //   {
-  //     id: 'Outlook',
-  //     platform: 'Outlook',
-  //     type: AuthorizationType.Custom,
-  //     label: '',
-  //     params: [
-  //       {
-  //         key: 'a'
-  //       }
-  //     ]
-  //   }
-  // ],
-  // i18n: {
-  //   messages: {
-  //     'zh-CN': {
-  //       attachmentLabel: '请选择附件字段',
-  //       url: '附件地址',
-  //       name: '附件名称',
-  //       size: '附件尺寸',
-  //     },
-  //     'en-US': {},
-  //     'ja-JP': {},
-  //   }
-  // },
+  i18n: {
+    messages: {
+      'zh-CN': {
+        'rmb': '人民币金额',
+        'usd': '美元金额',
+        'rate': '汇率',
+      },
+      'en-US': {
+        'rmb': 'RMB Amount',
+        'usd': 'Dollar amount',
+        'rate': 'Exchange Rate',
+      },
+      'ja-JP': {
+        'rmb': '人民元の金額',
+        'usd': 'ドル金額',
+        'rate': '為替レート',
+      },
+    }
+  },
   formItems: [
     {
-      key: 'url',
-      label: '这是label',
+      key: 'account',
+      label: t('rmb'),
       component: FieldComponent.FieldSelect,
       props: {
-        supportType: [FieldType.Text]
+        supportType: [FieldType.Number],
       },
       validator: {
         required: true,
@@ -40,45 +37,59 @@ basekit.addField({
     },
   ],
   // formItemParams 为运行时传入的字段参数，对应字段配置里的 formItems （如引用的依赖字段）
-  execute: async (formItemParams, context) => {
-    console.log("🚀 ~ execute: ~ formItemParams, context:", formItemParams, context)
-    const { url } = formItemParams;
-    // try {
-    //   const res = await context.fetch('http://localhost:3000?c=1#d=2', {
-    //     headers: {
-    //       'Authorization': 'token',
-    //     },
-    //   });
-    //   console.log("🚀 ~ execute: ~ res:", res)
-    // } catch (e) {
-    //   console.log("🚀 ~ execute: ~ e:", e)
-    // }
-    if (Array.isArray(url)) {
+  execute: async (formItemParams: { account: number }, context) => {
+    const { account = 0 } = formItemParams;
+    try {
+      const res = await context.fetch('https://api.exchangerate-api.com/v4/latest/CNY', {
+        method: 'GET',
+      }).then(res => res.json());
+      const usdRate = res?.rates?.['USD'];
       return {
-        code: FieldCode.Success, // 0 表示请求成功
-        // data 类型需与下方 resultType 定义一致
+        code: FieldCode.Success,
         data: {
-          files: [
-
-          ].concat(url.map(({ link }) => {
-            if(!link){
-              return undefined;
-            }
-            return {
-              name: "随机" + Math.random() + "图片1.jpg",
-              content: link,
-              contentType: "URL"
-            }
-          })).filter((v)=>v?.content)
-        },
-      };
+          id: `${Math.random()}`,
+          usd: parseFloat((account * usdRate).toFixed(4)),
+          rate: usdRate,
+        }
+      }
+    } catch (e) {
+      return {
+        code: FieldCode.Error,
+      }
     }
-    return {
-      code: FieldCode.Error,
-    };
   },
   resultType: {
-    type: FieldType.Attachment,
+    type: FieldType.Object,
+    extra: {
+      icon: {
+        light: 'https://lf3-static.bytednsdoc.com/obj/eden-cn/eqgeh7upeubqnulog/chatbot.svg',
+      },
+      properties: [
+        {
+          key: 'id',
+          type: FieldType.Text,
+          title: 'id',
+          hidden: true,
+        },
+        {
+          key: 'usd',
+          type: FieldType.Number,
+          title: t('usd'),
+          primary: true,
+          extra: {
+            formatter: NumberFormatter.DIGITAL_ROUNDED_2,
+          }
+        },
+        {
+          key: 'rate',
+          type: FieldType.Number,
+          title: t('rate'),
+          extra: {
+            formatter: NumberFormatter.DIGITAL_ROUNDED_4,
+          }
+        },
+      ],
+    },
   },
 });
 export default basekit;
