@@ -53,18 +53,23 @@ basekit.addField({
     // } catch (e) {
     //   console.log("🚀 ~ execute: ~ e:", e)
     // }
-    if (url) {
+    if (Array.isArray(url)) {
       return {
         code: FieldCode.Success, // 0 表示请求成功
         // data 类型需与下方 resultType 定义一致
         data: {
           files: [
-            {
-              name: "图片1.jpg",
-              content: url[0].link,
+
+          ].concat(url.map(({ link }) => {
+            if(!link){
+              return undefined;
+            }
+            return {
+              name: "随机" + Math.random() + "图片1.jpg",
+              content: link,
               contentType: "URL"
             }
-          ]
+          })).filter((v)=>v?.content)
         },
       };
     }
