@@ -1,38 +1,37 @@
-import { basekit, FieldType, field, FieldComponent, FieldCode, NumberFormatter, AuthorizationType } from '@lark-opdev/block-basekit-server-api';
+import { basekit, FieldType, field, FieldComponent, FieldCode, NumberFormatter, AuthorizationType, DateFormatter } from '@lark-opdev/block-basekit-server-api';
+
 const { t } = field;
 
 // 通过addDomainList添加请求接口的域名
-basekit.addDomainList(['api.exchangerate-api.com']);
+basekit.addDomainList(['api.example.com']);
 
 basekit.addField({
   // 定义捷径的i18n语言资源
   i18n: {
     messages: {
       'zh-CN': {
-        'rmb': '人民币金额',
-        'usd': '美元金额',
-        'rate': '汇率',
+        "param_source_label": "OCR 发票来源",
+        "res_title_label":  "发票抬头",
+        "res_number_label": "发票票号",
+        "res_date_label":   "开票日期",
+        "res_amount_label":"合计金额",
+        "res_tax_label":    "合计税额",
+        "res_person_label": "收款人",
       },
       'en-US': {
-        'rmb': 'RMB Amount',
-        'usd': 'Dollar amount',
-        'rate': 'Exchange Rate',
       },
       'ja-JP': {
-        'rmb': '人民元の金額',
-        'usd': 'ドル金額',
-        'rate': '為替レート',
       },
     }
   },
   // 定义捷径的入参
   formItems: [
     {
-      key: 'account',
-      label: t('rmb'),
+      key: 'attachments',
+      label: t('param_source_label'),
       component: FieldComponent.FieldSelect,
       props: {
-        supportType: [FieldType.Number],
+        supportType: [FieldType.Attachment],
       },
       validator: {
         required: true,
@@ -40,24 +39,28 @@ basekit.addField({
     },
   ],
   // formItemParams 为运行时传入的字段参数，对应字段配置里的 formItems （如引用的依赖字段）
-  execute: async (formItemParams: { account: number }, context) => {
-    const { account = 0 } = formItemParams;
+  execute: async (formItemParams, context) => {
+    const { attachments } = formItemParams;
     try {
-      const res = await context.fetch('https://api.exchangerate-api.com/v4/latest/CNY', {
-        method: 'GET',
+      // 此处是 mock 的接口，你可以向你的业务接口请求
+      await context.fetch('https://api.example.com', {
+        method: 'POST',
+        body: JSON.stringify({
+          url: attachments?.[0]?.tmp_url,
+        })
       }).then(res => res.json());
-      const usdRate = res?.rates?.['USD'];
+    } catch (e) {
       return {
         code: FieldCode.Success,
         data: {
-          id: `${Math.random()}`,
-          usd: parseFloat((account * usdRate).toFixed(4)),
-          rate: usdRate,
+          id: '发票id',
+          title: '发票抬头',
+          number: 1110235792,
+          date: Date.now(),
+          amount: 199.98,
+          tax: 200,
+          person: '郑俊鑫'
         }
-      }
-    } catch (e) {
-      return {
-        code: FieldCode.Error,
       }
     }
   },
@@ -76,21 +79,47 @@ basekit.addField({
           hidden: true,
         },
         {
-          key: 'usd',
+          key: 'title',
+          type: FieldType.Text,
+          title: t('res_title_label'),
+        },
+        {
+          key: 'number',
           type: FieldType.Number,
-          title: t('usd'),
+          title: t('res_number_label'),
           primary: true,
+          extra: {
+            formatter: NumberFormatter.INTEGER,
+          }
+        },
+        {
+          key: 'date',
+          type: FieldType.DateTime,
+          title: t('res_date_label'),
+          extra: {
+            dateFormat: DateFormatter.DATE_TIME_WITH_HYPHEN
+          }
+        },
+        {
+          key: 'amount',
+          type: FieldType.Number,
+          title: t('res_amount_label'),
           extra: {
             formatter: NumberFormatter.DIGITAL_ROUNDED_2,
           }
         },
         {
-          key: 'rate',
+          key: 'tax',
           type: FieldType.Number,
-          title: t('rate'),
+          title: t('res_amount_label'),
           extra: {
-            formatter: NumberFormatter.DIGITAL_ROUNDED_4,
+            formatter: NumberFormatter.DIGITAL_ROUNDED_2,
           }
+        },
+        {
+          key: 'person',
+          type: FieldType.Text,
+          title: t('res_person_label'),
         },
       ],
     },
