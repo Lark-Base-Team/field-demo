@@ -4,7 +4,7 @@ basekit.addField({
   formItems: [
     {
       key: 'url',
-      label: '请选择多行文本字段',
+      label: '请输入需要转附件的URL',
       component: FieldComponent.FieldSelect,
       props: {
         supportType: [FieldType.Text]
