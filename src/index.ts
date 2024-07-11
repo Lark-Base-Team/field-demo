@@ -1,9 +1,11 @@
 import { basekit, FieldType, field, FieldComponent, FieldCode, NumberFormatter, AuthorizationType } from '@lark-opdev/block-basekit-server-api';
 const { t } = field;
 
+// 通过addDomainList添加请求接口的域名
 basekit.addDomainList(['api.exchangerate-api.com']);
 
 basekit.addField({
+  // 定义捷径的i18n语言资源
   i18n: {
     messages: {
       'zh-CN': {
@@ -23,6 +25,7 @@ basekit.addField({
       },
     }
   },
+  // 定义捷径的入参
   formItems: [
     {
       key: 'account',
@@ -58,6 +61,7 @@ basekit.addField({
       }
     }
   },
+  // 定义捷径的返回结果类型
   resultType: {
     type: FieldType.Object,
     extra: {
