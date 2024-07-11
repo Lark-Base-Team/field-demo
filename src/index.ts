@@ -25,10 +25,11 @@ basekit.addField({
           if (!link) {
             return undefined
           }
+          const name = link.split('/').slice(-1)[0];
           return {
-            name: '随机名字' + index + "图片1.jpg",
+            name: '随机名字' + index + name,
             content: link,
-            contentType: "URL"
+            contentType: "attachment/url"
           }
         })).filter((v) => v)
       };
