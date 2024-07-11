@@ -6,6 +6,17 @@ const { t } = field;
 basekit.addDomainList(['api.example.com']);
 
 basekit.addField({
+  // 声明捷径需要 HeaderBearerToken APIKey 授权
+  authorizations: [
+    {
+      id: 'Outlook',
+      platform: 'Outlook',
+      label: 'Outlook',
+      type: AuthorizationType.HeaderBearerToken,
+      // 通过 instructionsUrl 向用户显示获取 APIKey 的地址
+      instructionsUrl: 'https://www.feishu.cn/',
+    }
+  ],
   // 定义捷径的i18n语言资源
   i18n: {
     messages: {
