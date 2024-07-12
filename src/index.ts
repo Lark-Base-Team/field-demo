@@ -9,7 +9,6 @@ import {
   AuthorizationType,
 } from '@lark-opdev/block-basekit-server-api';
 import querystring from 'querystring';
-import dayjs from 'dayjs';
 
 const { t } = field;
 
@@ -149,7 +148,7 @@ basekit.addField({
           .replace('年', '-')
           .replace('月', '-')
           .replace('日', '');
-        const timestamp = dayjs(formattedStr).unix();
+        const timestamp = +(new Date(formattedStr));
 
         return {
           code: FieldCode.Success,

@@ -15,7 +15,6 @@
     "@lark-opdev/block-basekit-cli": "1.0.3-alpha.2"
   },
   "dependencies": {
-    "@lark-opdev/block-basekit-server-api": "^1.0.4-alpha.2",
-    "dayjs": "^1.11.11"
+    "@lark-opdev/block-basekit-server-api": "^1.0.4-alpha.2"
   }
 }
