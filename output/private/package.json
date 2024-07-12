@@ -6,15 +6,14 @@
   "scripts": {
     "start": "block-basekit-cli start:field",
     "build": "block-basekit-cli build:field",
-    "pack": "block-basekit-cli pack:field",
-    "dev": "block-basekit-cli dev:field"
+    "pack": "block-basekit-cli pack:field"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@lark-opdev/block-basekit-cli": "1.0.3-alpha.2"
+    "@lark-opdev/block-basekit-cli": "1.0.2-alpha.15"
   },
   "dependencies": {
-    "@lark-opdev/block-basekit-server-api": "^1.0.4-alpha.2"
+    "@lark-opdev/block-basekit-server-api": "https://lf3-static.bytednsdoc.com/obj/eden-cn/jjjpceh7nulojvhj/@lark-opdev-block-basekit-server-api-1.0.3-alpha.14.tgz"
   }
 }
