@@ -85,6 +85,7 @@ basekit.addField({
       properties: [
         {
           key: 'id',
+          isGroupByKey: true,
           type: FieldType.Text,
           title: 'id',
           hidden: true,

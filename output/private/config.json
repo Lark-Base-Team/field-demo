@@ -1,1 +1,0 @@
-{"credentials":[{"id":"Outlook","platform":"Outlook","label":"Outlook","type":"HeaderBearerToken","instructionsUrl":"https://www.feishu.cn/","authType":"APIKey"}],"hostWhiteList":["api.example.com"]}
