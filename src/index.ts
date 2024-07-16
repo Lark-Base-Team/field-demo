@@ -49,32 +49,6 @@ basekit.addField({
       }
     },
   ],
-  // formItemParams 为运行时传入的字段参数，对应字段配置里的 formItems （如引用的依赖字段）
-  execute: async (formItemParams, context) => {
-    const { attachments } = formItemParams;
-    try {
-      // 此处是 mock 的接口，你可以向你的业务接口请求
-      await context.fetch('https://api.example.com', {
-        method: 'POST',
-        body: JSON.stringify({
-          url: attachments?.[0]?.tmp_url,
-        })
-      }).then(res => res.json());
-    } catch (e) {
-      return {
-        code: FieldCode.Success,
-        data: {
-          id: '发票id',
-          title: '发票抬头',
-          number: 1110235792,
-          date: Date.now(),
-          amount: 199.98,
-          tax: 200,
-          person: '郑俊鑫'
-        }
-      }
-    }
-  },
   // 定义捷径的返回结果类型
   resultType: {
     type: FieldType.Object,
@@ -135,6 +109,32 @@ basekit.addField({
         },
       ],
     },
+  },
+  // formItemParams 为运行时传入的字段参数，对应字段配置里的 formItems （如引用的依赖字段）
+  execute: async (formItemParams, context) => {
+    const { attachments } = formItemParams;
+    try {
+      // 此处是 mock 的接口，你可以向你的业务接口请求
+      await context.fetch('https://api.example.com', {
+        method: 'POST',
+        body: JSON.stringify({
+          url: attachments?.[0]?.tmp_url,
+        })
+      }).then(res => res.json());
+    } catch (e) {
+      return {
+        code: FieldCode.Success,
+        data: {
+          id: '发票id',
+          title: '发票抬头',
+          number: 1110235792,
+          date: Date.now(),
+          amount: 199.98,
+          tax: 200,
+          person: '郑俊鑫'
+        }
+      }
+    }
   },
 });
 export default basekit;
