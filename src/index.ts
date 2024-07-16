@@ -39,28 +39,6 @@ basekit.addField({
       }
     },
   ],
-  // formItemParams 为运行时传入的字段参数，对应字段配置里的 formItems （如引用的依赖字段）
-  execute: async (formItemParams: { account: number }, context) => {
-    const { account = 0 } = formItemParams;
-    try {
-      const res = await context.fetch('https://api.exchangerate-api.com/v4/latest/CNY', {
-        method: 'GET',
-      }).then(res => res.json());
-      const usdRate = res?.rates?.['USD'];
-      return {
-        code: FieldCode.Success,
-        data: {
-          id: `${Math.random()}`,
-          usd: parseFloat((account * usdRate).toFixed(4)),
-          rate: usdRate,
-        }
-      }
-    } catch (e) {
-      return {
-        code: FieldCode.Error,
-      }
-    }
-  },
   // 定义捷径的返回结果类型
   resultType: {
     type: FieldType.Object,
@@ -95,6 +73,28 @@ basekit.addField({
         },
       ],
     },
+  },
+  // formItemParams 为运行时传入的字段参数，对应字段配置里的 formItems （如引用的依赖字段）
+  execute: async (formItemParams: { account: number }, context) => {
+    const { account = 0 } = formItemParams;
+    try {
+      const res = await context.fetch('https://api.exchangerate-api.com/v4/latest/CNY', {
+        method: 'GET',
+      }).then(res => res.json());
+      const usdRate = res?.rates?.['USD'];
+      return {
+        code: FieldCode.Success,
+        data: {
+          id: `${Math.random()}`,
+          usd: parseFloat((account * usdRate).toFixed(4)),
+          rate: usdRate,
+        }
+      }
+    } catch (e) {
+      return {
+        code: FieldCode.Error,
+      }
+    }
   },
 });
 export default basekit;
