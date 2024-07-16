@@ -14,6 +14,9 @@ basekit.addField({
       }
     },
   ],
+  resultType: {
+    type: FieldType.Attachment,
+  },
   // formItemParams 为运行时传入的字段参数，对应字段配置里的 formItems （如引用的依赖字段）
   execute: async (formItemParams, context) => {
     const { url } = formItemParams;
@@ -37,9 +40,6 @@ basekit.addField({
     return {
       code: FieldCode.Error,
     };
-  },
-  resultType: {
-    type: FieldType.Attachment,
   },
 });
 export default basekit;
