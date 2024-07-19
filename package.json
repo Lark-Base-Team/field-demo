@@ -6,7 +6,8 @@
   "scripts": {
     "start": "block-basekit-cli start:field",
     "build": "block-basekit-cli build:field",
-    "pack": "block-basekit-cli pack:field"
+    "pack": "block-basekit-cli pack:field",
+    "dev": "block-basekit-cli dev:field"
   },
   "author": "",
   "license": "ISC",
