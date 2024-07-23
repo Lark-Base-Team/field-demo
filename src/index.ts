@@ -78,7 +78,7 @@ basekit.addField({
   execute: async (formItemParams: { account: number }, context) => {
     const { account = 0 } = formItemParams;
     try {
-      const res = await context.fetch('https://api.exchangerate-api.com/v4/latest/CNY', {
+      const res = await context.fetch('https://api.exchangerate-api.com/v4/latest/CNY', { // 已经在addDomainList中添加为白名单的请求
         method: 'GET',
       }).then(res => res.json());
       const usdRate = res?.rates?.['USD'];
