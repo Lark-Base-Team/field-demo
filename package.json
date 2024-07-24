@@ -12,7 +12,11 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+<<<<<<< HEAD
     "@lark-opdev/block-basekit-cli": "1.0.4-alpha.11"
+=======
+    "@lark-opdev/block-basekit-cli": "1.0.4-alpha.12"
+>>>>>>> 8701a60 (feat: 升级sdk版本)
   },
   "dependencies": {
     "@lark-opdev/block-basekit-server-api": "1.0.4-alpha.11"
