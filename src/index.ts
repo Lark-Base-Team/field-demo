@@ -37,7 +37,7 @@ basekit.addField({
       return {
         code: FieldCode.Success,
         data: {
-          id: `${Math.random()}`,
+          id: usdRate ? 'success' : 'error',
           usd: parseFloat((account * usdRate).toFixed(4)),
           rate: usdRate,
         }
@@ -58,8 +58,8 @@ basekit.addField({
         {
           key: 'id',
           type: FieldType.Text,
-          title: 'id',
-          hidden: true,
+          title: '生成结果',
+          isGroupByKey: true,
         },
         {
           key: 'usd',
