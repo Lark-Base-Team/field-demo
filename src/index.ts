@@ -33,6 +33,10 @@ basekit.addField({
         }
       ],
       instructionsUrl: 'https://ai.baidu.com/ai-doc/REFERENCE/Ck3dwjhhu',
+      icon: {
+        light: 'https://lf3-static.bytednsdoc.com/obj/eden-cn/eqgeh7upeubqnulog/chatbot.svg',
+        dark: 'https://lf3-static.bytednsdoc.com/obj/eden-cn/eqgeh7upeubqnulog/chatbot.svg',
+      }
     }
   ],
   // 定义捷径的i18n语言资源
@@ -103,7 +107,7 @@ basekit.addField({
     },
   ],
   // formItemParams 为运行时传入的字段参数，对应字段配置里的 formItems （如引用的依赖字段）
-  execute: async (formItemParams: { flag: {value: string}, attachments: { tmp_url: string }[]}, context) => {
+  execute: async (formItemParams: { flag: { value: string }, attachments: { tmp_url: string }[] }, context) => {
     const { flag, attachments } = formItemParams;
 
     try {
@@ -143,6 +147,9 @@ basekit.addField({
           )
           .then(res => res.json());
         const data = res?.words_result;
+        if (res.error_msg) {
+          throw res.error_msg
+        }
         const dateStr = data?.InvoiceDate ?? '';
         const formattedStr = dateStr
           .replace('年', '-')
@@ -166,10 +173,12 @@ basekit.addField({
     } catch (e) {
       return {
         code: FieldCode.Error,
+        msg: '运行发生错误：' + e,
       };
     }
     return {
       code: FieldCode.ConfigError,
+      msg: '配置错误，未识别到附件'
     };
   },
   // 定义捷径的返回结果类型
@@ -190,6 +199,7 @@ basekit.addField({
         {
           key: 'title',
           type: FieldType.Text,
+          isGroupByKey: true,
           title: t('res_title_label'),
         },
         {

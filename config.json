@@ -1,8 +1,8 @@
 {
     "authorizations": [
-        {
-            "username": "123",
-            "password": "123"
-        }
+        [
+            "client_id_mock_这是mock的client_id",
+            "client_secret_mock_这是mock的client_secret"
+        ]
     ]
 }
