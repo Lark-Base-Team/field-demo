@@ -12,6 +12,7 @@ basekit.addField({
   //     id: 'Outlook',
   //     platform: 'Outlook',
   //     label: 'Outlook',
+  //     required:false,
   //     type: AuthorizationType.HeaderBearerToken,
   //     // 通过 instructionsUrl 向用户显示获取 APIKey 的地址
   //     instructionsUrl: 'https://www.feishu.cn/',
