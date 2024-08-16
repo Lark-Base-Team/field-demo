@@ -1,4 +1,5 @@
 import { basekit, FieldType, field, FieldComponent, FieldCode, NumberFormatter, AuthorizationType } from '@lark-opdev/block-basekit-server-api';
+const { t } = field;
 
 basekit.addField({
   formItems: [
