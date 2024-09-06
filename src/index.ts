@@ -18,8 +18,8 @@ basekit.addDomainList(['baidubce.com']);
 basekit.addField({
   authorizations: [
     {
-      id: 'Autodocs',
-      platform: 'autodocs',
+      id: 'baidu',
+      platform: 'baidu',
       label: 'OCR',
       type: AuthorizationType.MultiQueryParamToken,
       params: [
@@ -124,7 +124,7 @@ basekit.addField({
               {
                 method: 'POST',
               },
-              'Autodocs'
+              'baidu'
             )
             .then(res => res.json());
           return res.access_token;
