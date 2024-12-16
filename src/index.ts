@@ -77,6 +77,14 @@ basekit.addField({
   // formItemParams 为运行时传入的字段参数，对应字段配置里的 formItems （如引用的依赖字段）
   execute: async (formItemParams: { account: number }, context) => {
     const { account = 0 } = formItemParams;
+    /** 为方便查看日志，使用此方法替代console.log */
+    function debugLog(arg: any) {
+      console.log(JSON.stringify({
+        formItemParams,
+        context,
+        arg
+      }))
+    }
     try {
       const res = await context.fetch('https://api.exchangerate-api.com/v4/latest/CNY', { // 已经在addDomainList中添加为白名单的请求
         method: 'GET',
@@ -91,6 +99,7 @@ basekit.addField({
         }
       }
     } catch (e) {
+      debugLog(e);
       return {
         code: FieldCode.Error,
       }
