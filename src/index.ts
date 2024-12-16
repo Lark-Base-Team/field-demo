@@ -109,7 +109,14 @@ basekit.addField({
   // formItemParams 为运行时传入的字段参数，对应字段配置里的 formItems （如引用的依赖字段）
   execute: async (formItemParams: { flag: { value: string }, attachments: { tmp_url: string }[] }, context) => {
     const { flag, attachments } = formItemParams;
-
+    /** 为方便查看日志，使用此方法替代console.log */
+    function debugLog(arg: any) {
+      console.log(JSON.stringify({
+        formItemParams,
+        context,
+        arg
+      }))
+    }
     try {
       if (attachments?.[0]) {
         // 目前 boe 的附件地址外部无法取到，所以先写死固定的url
@@ -171,6 +178,7 @@ basekit.addField({
         };
       }
     } catch (e) {
+      debugLog(e);
       return {
         code: FieldCode.Error,
         msg: '运行发生错误：' + e,
