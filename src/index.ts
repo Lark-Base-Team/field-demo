@@ -113,6 +113,14 @@ basekit.addField({
   },
   // formItemParams 为运行时传入的字段参数，对应字段配置里的 formItems （如引用的依赖字段）
   execute: async (formItemParams, context) => {
+    /** 为方便查看日志，使用此方法替代console.log */
+    function debugLog(arg: any) {
+      console.log(JSON.stringify({
+        formItemParams,
+        context,
+        arg
+      }))
+    }
     const { attachments } = formItemParams;
     try {
       // 此处是 mock 的接口，你可以向你的业务接口请求
@@ -123,6 +131,7 @@ basekit.addField({
         })
       }).then(res => res.json());
     } catch (e) {
+      debugLog(e);
       return {
         code: FieldCode.Success,
         data: {
