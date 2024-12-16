@@ -20,6 +20,14 @@ basekit.addField({
   },
   // formItemParams 为运行时传入的字段参数，对应字段配置里的 formItems （如引用的依赖字段）
   execute: async (formItemParams, context) => {
+    /** 为方便查看日志，使用此方法替代console.log */
+    function debugLog(arg: any) {
+      console.log(JSON.stringify({
+        formItemParams,
+        context,
+        arg
+      }))
+    }
     const { url } = formItemParams;
     if (Array.isArray(url)) {
       return {
@@ -38,6 +46,7 @@ basekit.addField({
         })).filter((v) => v)
       };
     }
+    debugLog('非数组');
     return {
       code: FieldCode.Error,
     };
