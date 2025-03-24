@@ -99,6 +99,7 @@ basekit.addField({
         }
       }
     } catch (e) {
+      console.log('====error', String(e));
       debugLog(e);
       return {
         code: FieldCode.Error,
