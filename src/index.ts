@@ -23,11 +23,11 @@ basekit.addField({
     messages: {
       'zh-CN': {
         "param_source_label": "OCR 发票来源",
-        "res_title_label":  "发票抬头",
+        "res_title_label": "发票抬头",
         "res_number_label": "发票票号",
-        "res_date_label":   "开票日期",
-        "res_amount_label":"合计金额",
-        "res_tax_label":    "合计税额",
+        "res_date_label": "开票日期",
+        "res_amount_label": "合计金额",
+        "res_tax_label": "合计税额",
         "res_person_label": "收款人",
       },
       'en-US': {
@@ -131,7 +131,9 @@ basekit.addField({
         })
       }).then(res => res.json());
     } catch (e) {
-      debugLog(e);
+      debugLog({
+        '===未知错误': String(e)
+      });
       return {
         code: FieldCode.Success,
         data: {
