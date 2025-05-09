@@ -37,7 +37,7 @@ basekit.addField({
       }))
     }
     try {
-      const res = await context.fetch('https://api.exchangerate-api.com/v4/latest/CNY', {
+      const res: any = await context.fetch('https://api.exchangerate-api.com/v4/latest/CNY', {
         method: 'GET',
       }).then(res => res.json());
       const rates = res?.rates;
