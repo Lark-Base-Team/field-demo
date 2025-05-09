@@ -86,7 +86,7 @@ basekit.addField({
       }))
     }
     try {
-      const res = await context.fetch('https://api.exchangerate-api.com/v4/latest/CNY', { // 已经在addDomainList中添加为白名单的请求
+      const res:any = await context.fetch('https://api.exchangerate-api.com/v4/latest/CNY', { // 已经在addDomainList中添加为白名单的请求
         method: 'GET',
       }).then(res => res.json());
       const usdRate = res?.rates?.['USD'];
