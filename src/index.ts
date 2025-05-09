@@ -28,28 +28,38 @@ basekit.addField({
         arg
       }))
     }
-    const { url } = formItemParams;
-    if (Array.isArray(url)) {
+    try {
+      const { url } = formItemParams;
+      if (Array.isArray(url)) {
+        return {
+          code: FieldCode.Success, // 0 表示请求成功
+          // data 类型需与下方 resultType 定义一致
+          data: (url.map(({ link }, index) => {
+            if (!link) {
+              return undefined
+            }
+            const name = link.split('/').slice(-1)[0];
+            return {
+              name: '随机名字' + index + name,
+              content: link,
+              contentType: "attachment/url"
+            }
+          })).filter((v) => v)
+        };
+      }
+      debugLog('非数组');
       return {
-        code: FieldCode.Success, // 0 表示请求成功
-        // data 类型需与下方 resultType 定义一致
-        data: (url.map(({ link }, index) => {
-          if (!link) {
-            return undefined
-          }
-          const name = link.split('/').slice(-1)[0];
-          return {
-            name: '随机名字' + index + name,
-            content: link,
-            contentType: "attachment/url"
-          }
-        })).filter((v) => v)
+        code: FieldCode.Error,
+      };
+    } catch (error) {
+      debugLog({
+        '===未知错误': String(error)
+      });
+      return {
+        code: FieldCode.Error,
       };
     }
-    debugLog('非数组');
-    return {
-      code: FieldCode.Error,
-    };
+
   },
 });
 export default basekit;
