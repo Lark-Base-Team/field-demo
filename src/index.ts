@@ -90,6 +90,7 @@ basekit.addField({
         method: 'GET',
       }).then(res => res.json());
       const usdRate = res?.rates?.['USD'];
+      debugLog({ res });
       return {
         code: FieldCode.Success,
         data: {
@@ -100,7 +101,7 @@ basekit.addField({
       }
     } catch (e) {
       console.log('====error', String(e));
-      debugLog(e);
+      debugLog({ e: String(e) });
       return {
         code: FieldCode.Error,
       }
