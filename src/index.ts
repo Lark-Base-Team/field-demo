@@ -125,7 +125,7 @@ basekit.addField({
           ? attachments?.[0]?.tmp_url
           : 'https://lf3-static.bytednsdoc.com/obj/eden-cn/eqgeh7upeubqnulog/发票.jpg';
         const getAccessToken = async () => {
-          const res = await context
+          const res: any = await context
             .fetch(
               'https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials',
               {
@@ -137,7 +137,7 @@ basekit.addField({
           return res.access_token;
         };
         const accessToken = await getAccessToken();
-        const res = await context
+        const res: any = await context
           .fetch(
             `https://aip.baidubce.com/rest/2.0/ocr/v1/vat_invoice?access_token=${accessToken}`,
             {
@@ -158,6 +158,9 @@ basekit.addField({
           throw res.error_msg
         }
         const dateStr = data?.InvoiceDate ?? '';
+        debugLog({
+          '====res':res
+        })
         const formattedStr = dateStr
           .replace('年', '-')
           .replace('月', '-')
@@ -178,15 +181,14 @@ basekit.addField({
         };
       }
     } catch (e) {
-      debugLog(e);
+      debugLog({ e: String(e) });
       return {
         code: FieldCode.Error,
-        msg: '运行发生错误：' + e,
       };
     }
+    debugLog('未识别到附件')
     return {
       code: FieldCode.ConfigError,
-      msg: '配置错误，未识别到附件'
     };
   },
   // 定义捷径的返回结果类型
