@@ -47,13 +47,17 @@ basekit.addField({
           })).filter((v) => v)
         };
       }
-      debugLog('非数组');
+
+      // 请避免使用 debugLog(url) 这类方式输出日志，因为所查到的日志是没有顺序的，为方便排查错误，对每个log进行手动标记顺序
+      debugLog({
+        '===1 url为空': url
+      });
       return {
         code: FieldCode.Error,
       };
     } catch (error) {
       debugLog({
-        '===未知错误': String(error)
+        '===999 未知错误': String(error)
       });
       return {
         code: FieldCode.Error,
