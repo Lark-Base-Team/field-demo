@@ -57,8 +57,16 @@ basekit.addField({
       debugLog({
         '===未知错误': String(e)
       });
+      /*
+      由于无法返回向使用者透传错误信息，请勿返回msg、message之类的字段，它们并不会起作用，如果要避免直接报错，可将错误信息当作成功结果返回：
+      */
       return {
-        code: FieldCode.Error,
+        code: FieldCode.Success,
+        data: {
+          id: '发生未知错误' + String(e) + '\n请联系开发者',
+          usd: 0,
+          rate: 0,
+        }
       }
     }
   },
