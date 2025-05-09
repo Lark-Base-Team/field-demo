@@ -124,31 +124,43 @@ basekit.addField({
     const { attachments } = formItemParams;
     try {
       // 此处是 mock 的接口，你可以向你的业务接口请求
-      await context.fetch('https://api.example.com', {
+      const res = await context.fetch('https://api.example.com', {
         method: 'POST',
         body: JSON.stringify({
           url: attachments?.[0]?.tmp_url,
         })
       }).then(res => res.json());
-    } catch (e) {
+
+      // 请避免使用 debugLog(res) 这类方式输出日志，因为所查到的日志是没有顺序的，为方便排查错误，对每个log进行手动标记顺序
       debugLog({
-        '===未知错误': String(e)
+        '===1 接口返回结果': res
       });
 
       /*
-      由于无法返回向使用者透传错误信息，请勿返回msg、message之类的字段，它们并不会起作用，如果要避免直接报错，可将错误信息当作成功结果返回：
+      如果错误原因明确，想要向使用者传递信息，要避免直接报错，可将错误信息当作成功结果返回：
       */
       return {
         code: FieldCode.Success,
         data: {
-          id: '发生未知错误' + String(e) + '\n请联系开发者',
-          title: '-',
+          id: '-',
+          title: '详细错误原因：这只是一个示例。',
           number: 0,
           date: Date.now(),
-          amount: 199.98,
+          amount: 0,
           tax: 0,
-          person: '-'
-        }
+          person: '-',
+        },
+      };
+    } catch (e) {
+      debugLog({
+        '===999 未知错误': String(e)
+      });
+
+      /** 返回非 Success 的错误码，将会在单元格上显示报错，请勿返回msg、message之类的字段，它们并不会起作用。
+       * 对于未知错误，请直接返回 FieldCode.Error，然后通过查日志来排查错误原因。
+       */
+      return {
+        code: FieldCode.Error,
       }
     }
   },
