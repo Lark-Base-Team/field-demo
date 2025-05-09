@@ -42,6 +42,9 @@ basekit.addField({
       }).then(res => res.json());
       const rates = res?.rates;
       const usdRate = rates?.['USD'];
+      debugLog({
+        '===返回结果': res
+      })
       return {
         code: FieldCode.Success,
         data: {
@@ -51,7 +54,9 @@ basekit.addField({
         }
       }
     } catch (e) {
-      debugLog(e);
+      debugLog({
+        '===未知错误': String(e)
+      });
       return {
         code: FieldCode.Error,
       }
