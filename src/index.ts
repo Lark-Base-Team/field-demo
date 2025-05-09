@@ -134,16 +134,20 @@ basekit.addField({
       debugLog({
         '===未知错误': String(e)
       });
+
+      /*
+      由于无法返回向使用者透传错误信息，请勿返回msg、message之类的字段，它们并不会起作用，如果要避免直接报错，可将错误信息当作成功结果返回：
+      */
       return {
         code: FieldCode.Success,
         data: {
-          id: '发票id',
-          title: '发票抬头',
-          number: 1110235792,
+          id: '发生未知错误' + String(e) + '\n请联系开发者',
+          title: '-',
+          number: 0,
           date: Date.now(),
           amount: 199.98,
-          tax: 200,
-          person: '郑俊鑫'
+          tax: 0,
+          person: '-'
         }
       }
     }
