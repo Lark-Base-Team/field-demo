@@ -158,8 +158,10 @@ basekit.addField({
           throw res.error_msg
         }
         const dateStr = data?.InvoiceDate ?? '';
+
+        // 请避免使用 debugLog(res) 这类方式输出日志，因为所查到的日志是没有顺序的，为方便排查错误，对每个log进行手动标记顺序
         debugLog({
-          '====res': res
+          '===1 res': res
         })
         const formattedStr = dateStr
           .replace('年', '-')
@@ -181,7 +183,9 @@ basekit.addField({
         };
       }
     } catch (e) {
-      debugLog({ e: String(e) });
+      debugLog({
+        '====999 未知错误': String(e)
+      });
       /** 返回非 Success 的错误码，将会在单元格上显示报错，请勿返回msg、message之类的字段，它们并不会起作用。
        * 对于未知错误，请直接返回 FieldCode.Error，然后通过查日志来排查错误原因。
        */
@@ -190,7 +194,7 @@ basekit.addField({
       }
     }
 
-    debugLog('未识别到附件')
+    debugLog('===99 未识别到附件')
     /*
       如果错误原因明确，想要向使用者传递信息，要避免直接报错，可将错误信息当作成功结果返回：
       */
