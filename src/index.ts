@@ -159,7 +159,7 @@ basekit.addField({
         }
         const dateStr = data?.InvoiceDate ?? '';
         debugLog({
-          '====res':res
+          '====res': res
         })
         const formattedStr = dateStr
           .replace('年', '-')
@@ -182,13 +182,29 @@ basekit.addField({
       }
     } catch (e) {
       debugLog({ e: String(e) });
+      /** 返回非 Success 的错误码，将会在单元格上显示报错，请勿返回msg、message之类的字段，它们并不会起作用。
+       * 对于未知错误，请直接返回 FieldCode.Error，然后通过查日志来排查错误原因。
+       */
       return {
         code: FieldCode.Error,
-      };
+      }
     }
+
     debugLog('未识别到附件')
+    /*
+      如果错误原因明确，想要向使用者传递信息，要避免直接报错，可将错误信息当作成功结果返回：
+      */
     return {
-      code: FieldCode.ConfigError,
+      code: FieldCode.Success,
+      data: {
+        id: '-',
+        title: '未识别到附件。',
+        number: 0,
+        date: Date.now(),
+        amount: 0,
+        tax: 0,
+        person: '-',
+      },
     };
   },
   // 定义捷径的返回结果类型
