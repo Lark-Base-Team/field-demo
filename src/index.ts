@@ -42,8 +42,10 @@ basekit.addField({
       }).then(res => res.json());
       const rates = res?.rates;
       const usdRate = rates?.['USD'];
+
+      // 请避免使用 debugLog(res) 这类方式输出日志，因为所查到的日志是没有顺序的，为方便排查错误，对每个log进行手动标记顺序
       debugLog({
-        '===返回结果': res
+        '===1 返回结果': res
       })
       return {
         code: FieldCode.Success,
@@ -53,20 +55,32 @@ basekit.addField({
           rate: usdRate,
         }
       }
-    } catch (e) {
-      debugLog({
-        '===未知错误': String(e)
-      });
+
       /*
-      由于无法返回向使用者透传错误信息，请勿返回msg、message之类的字段，它们并不会起作用，如果要避免直接报错，可将错误信息当作成功结果返回：
-      */
+        如果错误原因明确，想要向使用者传递信息，要避免直接报错，可将错误信息当作成功结果返回：
+
       return {
         code: FieldCode.Success,
         data: {
-          id: '发生未知错误' + String(e) + '\n请联系开发者',
+          id: `具体错误原因`,
           usd: 0,
           rate: 0,
         }
+      }
+
+      */
+
+
+    } catch (e) {
+      debugLog({
+        '===999 未知错误': String(e)
+      });
+
+      /** 返回非 Success 的错误码，将会在单元格上显示报错，请勿返回msg、message之类的字段，它们并不会起作用。
+       * 对于未知错误，请直接返回 FieldCode.Error，然后通过查日志来排查错误原因。
+       */
+      return {
+        code: FieldCode.Error,
       }
     }
   },
