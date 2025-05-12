@@ -79,6 +79,7 @@ basekit.addField({
     const { account = 0 } = formItemParams;
     /** 为方便查看日志，使用此方法替代console.log */
     function debugLog(arg: any) {
+      // @ts-ignore
       console.log(JSON.stringify({
         formItemParams,
         context,
