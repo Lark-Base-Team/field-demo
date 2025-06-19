@@ -12,8 +12,9 @@ import querystring from 'querystring';
 
 const { t } = field;
 
-// 通过addDomainList添加请求接口的域名
-basekit.addDomainList(['baidubce.com']);
+const feishuDm = ['feishu.cn', 'feishucdn.com', 'larksuitecdn.com', 'larksuite.com'];
+// 通过addDomainList添加请求接口的域名，不可写多个addDomainList，否则会被覆盖
+basekit.addDomainList([...feishuDm, 'baidubce.com']);
 
 basekit.addField({
   authorizations: [
