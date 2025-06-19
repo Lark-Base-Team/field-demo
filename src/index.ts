@@ -1,8 +1,9 @@
 import { basekit, FieldType, field, FieldComponent, FieldCode, NumberFormatter, AuthorizationType } from '@lark-opdev/block-basekit-server-api';
 const { t } = field;
 
-// 通过addDomainList添加请求接口的域名
-basekit.addDomainList(['api.exchangerate-api.com']);
+const feishuDm = ['feishu.cn', 'feishucdn.com', 'larksuitecdn.com', 'larksuite.com'];
+// 通过addDomainList添加请求接口的域名，不可写多个addDomainList，否则会被覆盖
+basekit.addDomainList([...feishuDm, 'api.exchangerate-api.com',]);
 
 basekit.addField({
   // 定义捷径的i18n语言资源
@@ -87,7 +88,7 @@ basekit.addField({
       }))
     }
     try {
-      const res:any = await context.fetch('https://api.exchangerate-api.com/v4/latest/CNY', { // 已经在addDomainList中添加为白名单的请求
+      const res: any = await context.fetch('https://api.exchangerate-api.com/v4/latest/CNY', { // 已经在addDomainList中添加为白名单的请求
         method: 'GET',
       }).then(res => res.json());
       const usdRate = res?.rates?.['USD'];
