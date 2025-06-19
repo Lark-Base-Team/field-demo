@@ -2,8 +2,9 @@ import { basekit, FieldType, field, FieldComponent, FieldCode, NumberFormatter, 
 
 const { t } = field;
 
-// 通过addDomainList添加请求接口的域名
-basekit.addDomainList(['api.example.com']);
+const feishuDm = ['feishu.cn', 'feishucdn.com', 'larksuitecdn.com', 'larksuite.com'];
+// 通过addDomainList添加请求接口的域名，不可写多个addDomainList，否则会被覆盖
+basekit.addDomainList([...feishuDm, 'api.example.com']);
 
 basekit.addField({
   // 可选的授权。声明捷径需要 HeaderBearerToken APIKey 授权
