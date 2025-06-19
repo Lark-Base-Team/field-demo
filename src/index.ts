@@ -1,8 +1,9 @@
 import { basekit, FieldType, field, FieldComponent, FieldCode, NumberFormatter } from '@lark-opdev/block-basekit-server-api';
 
 const { t } = field;
-
-basekit.addDomainList(['api.exchangerate-api.com']);
+const feishuDm = ['feishu.cn', 'feishucdn.com', 'larksuitecdn.com', 'larksuite.com'];
+// 通过addDomainList添加请求接口的域名，不可写多个addDomainList，否则会被覆盖
+basekit.addDomainList([...feishuDm, 'api.exchangerate-api.com']);
 
 basekit.addField({
   i18n: {
