@@ -52,13 +52,13 @@ basekit.addField({
           key: 'id',
           isGroupByKey: true,
           type: FieldType.Text,
-          title: 'id',
+          label: 'id',
           hidden: true,
         },
         {
           key: 'usd',
           type: FieldType.Number,
-          title: t('usd'),
+          label: t('usd'),
           primary: true,
           extra: {
             formatter: NumberFormatter.DIGITAL_ROUNDED_2,
@@ -67,7 +67,7 @@ basekit.addField({
         {
           key: 'rate',
           type: FieldType.Number,
-          title: t('rate'),
+          label: t('rate'),
           extra: {
             formatter: NumberFormatter.DIGITAL_ROUNDED_4,
           }
@@ -88,16 +88,19 @@ basekit.addField({
       }))
     }
     try {
-      const res: any = await context.fetch('https://api.exchangerate-api.com/v4/latest/CNY', { // 已经在addDomainList中添加为白名单的请求
+      const resText: any = await context.fetch('https://api.exchangerate-api.com/v4/latest/CNY', { // 已经在addDomainList中添加为白名单的请求
         method: 'GET',
-      }).then(res => res.json());
-      const usdRate = res?.rates?.['USD'];
+      }).then(res => res.text()); // 不要直接res.json()，这非常容易报错，且难以排查
 
       // 请避免使用 debugLog(res) 这类方式输出日志，因为所查到的日志是没有顺序的，为方便排查错误，对每个log进行手动标记顺序
       debugLog({
-        '===1 接口返回结果': res
+        '===1 接口返回结果': resText
       });
 
+      const res = JSON.parse(resText);
+      const usdRate = res?.rates?.['USD'];
+
+      
       return {
         code: FieldCode.Success,
         data: {
