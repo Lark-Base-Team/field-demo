@@ -225,19 +225,19 @@ basekit.addField({
         {
           key: 'id',
           type: FieldType.Text,
-          title: 'id',
+          label: 'id',
           hidden: true,
         },
         {
           key: 'title',
           type: FieldType.Text,
           isGroupByKey: true,
-          title: t('res_title_label'),
+          label: t('res_title_label'),
         },
         {
           key: 'number',
           type: FieldType.Number,
-          title: t('res_number_label'),
+          label: t('res_number_label'),
           primary: true,
           extra: {
             formatter: NumberFormatter.INTEGER,
@@ -246,7 +246,7 @@ basekit.addField({
         {
           key: 'date',
           type: FieldType.DateTime,
-          title: t('res_date_label'),
+          label: t('res_date_label'),
           extra: {
             dateFormat: DateFormatter.DATE_TIME_WITH_HYPHEN,
           },
@@ -254,7 +254,7 @@ basekit.addField({
         {
           key: 'amount',
           type: FieldType.Number,
-          title: t('res_amount_label'),
+          label: t('res_amount_label'),
           extra: {
             formatter: NumberFormatter.DIGITAL_ROUNDED_2,
           },
@@ -262,7 +262,7 @@ basekit.addField({
         {
           key: 'tax',
           type: FieldType.Number,
-          title: t('res_tax_label'),
+          label: t('res_tax_label'),
           extra: {
             formatter: NumberFormatter.DIGITAL_ROUNDED_2,
           },
@@ -270,7 +270,7 @@ basekit.addField({
         {
           key: 'person',
           type: FieldType.Text,
-          title: t('res_person_label'),
+          label: t('res_person_label'),
         },
       ],
     },
