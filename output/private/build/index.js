@@ -60,18 +60,18 @@ block_basekit_server_api_1.basekit.addField({
                     key: 'id',
                     isGroupByKey: true,
                     type: block_basekit_server_api_1.FieldType.Text,
-                    title: 'id',
+                    label: 'id',
                     hidden: true,
                 },
                 {
                     key: 'title',
                     type: block_basekit_server_api_1.FieldType.Text,
-                    title: t('res_title_label'),
+                    label: t('res_title_label'),
                 },
                 {
                     key: 'number',
                     type: block_basekit_server_api_1.FieldType.Number,
-                    title: t('res_number_label'),
+                    label: t('res_number_label'),
                     primary: true,
                     extra: {
                         formatter: block_basekit_server_api_1.NumberFormatter.INTEGER,
@@ -80,7 +80,7 @@ block_basekit_server_api_1.basekit.addField({
                 {
                     key: 'date',
                     type: block_basekit_server_api_1.FieldType.DateTime,
-                    title: t('res_date_label'),
+                    label: t('res_date_label'),
                     extra: {
                         dateFormat: block_basekit_server_api_1.DateFormatter.DATE_TIME_WITH_HYPHEN
                     }
@@ -88,7 +88,7 @@ block_basekit_server_api_1.basekit.addField({
                 {
                     key: 'amount',
                     type: block_basekit_server_api_1.FieldType.Number,
-                    title: t('res_amount_label'),
+                    label: t('res_amount_label'),
                     extra: {
                         formatter: block_basekit_server_api_1.NumberFormatter.DIGITAL_ROUNDED_2,
                     }
@@ -96,7 +96,7 @@ block_basekit_server_api_1.basekit.addField({
                 {
                     key: 'tax',
                     type: block_basekit_server_api_1.FieldType.Number,
-                    title: t('res_amount_label'),
+                    label: t('res_amount_label'),
                     extra: {
                         formatter: block_basekit_server_api_1.NumberFormatter.DIGITAL_ROUNDED_2,
                     }
@@ -104,7 +104,7 @@ block_basekit_server_api_1.basekit.addField({
                 {
                     key: 'person',
                     type: block_basekit_server_api_1.FieldType.Text,
-                    title: t('res_person_label'),
+                    label: t('res_person_label'),
                 },
             ],
         },
