@@ -96,13 +96,13 @@ basekit.addField({
         {
           key: 'id',
           type: FieldType.Text,
-          title: '生成结果',
+          label: '生成结果',
           isGroupByKey: true,
         },
         {
           key: 'usd',
           type: FieldType.Number,
-          title: '美元金额',
+          label: '美元金额',
           primary: true,
           extra: {
             formatter: NumberFormatter.DIGITAL_ROUNDED_2,
@@ -111,7 +111,7 @@ basekit.addField({
         {
           key: 'rate',
           type: FieldType.Number,
-          title: '汇率',
+          label: '汇率',
           extra: {
             formatter: NumberFormatter.DIGITAL_ROUNDED_4,
           }
