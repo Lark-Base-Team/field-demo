@@ -78,29 +78,80 @@ basekit.addField({
   // formItemParams 为运行时传入的字段参数，对应字段配置里的 formItems （如引用的依赖字段）
   execute: async (formItemParams: { account: number }, context) => {
     const { account = 0 } = formItemParams;
-    /** 为方便查看日志，使用此方法替代console.log */
-    function debugLog(arg: any) {
+    /** 
+         * 为方便查看日志，使用此方法替代console.log
+         * 开发者可以直接使用这个工具函数进行日志记录
+         */
+    function debugLog(arg: any, showContext = false) {
       // @ts-ignore
+      if (!showContext) {
+        console.log(JSON.stringify({ arg, logID: context.logID }), '\n');
+        return;
+      }
       console.log(JSON.stringify({
         formItemParams,
         context,
         arg
-      }))
+      }), '\n');
     }
-    try {
-      const resText: any = await context.fetch('https://api.exchangerate-api.com/v4/latest/CNY', { // 已经在addDomainList中添加为白名单的请求
-        method: 'GET',
-      }).then(res => res.text()); // 不要直接res.json()，这非常容易报错，且难以排查
 
-      // 请避免使用 debugLog(res) 这类方式输出日志，因为所查到的日志是没有顺序的，为方便排查错误，对每个log进行手动标记顺序
-      debugLog({
-        '===1 接口返回结果': resText
+    // 入口第一行日志，展示formItemParams和context，方便调试
+    // 每次修改版本时，都需要修改日志版本号，方便定位问题
+    debugLog('=====start=====v1', true);
+
+    /** 
+     * 封装好的fetch函数 - 开发者请尽量使用这个封装，而不是直接调用context.fetch
+     * 这个封装会自动处理日志记录和错误捕获，简化开发工作
+     */
+    const fetch: <T = Object>(...arg: Parameters<typeof context.fetch>) => Promise<T | { code: number, error: any, [p: string]: any }> = async (url, init, authId) => {
+      try {
+        const res = await context.fetch(url, init, authId);
+        // 不要直接.json()，因为接口返回的可能不是json格式，会导致解析错误
+        const resText = await res.text();
+
+        // 自动记录请求结果日志
+        debugLog({
+          [`===fetch res： ${url} 接口返回结果`]: {
+            url,
+            init,
+            authId,
+            resText: resText.slice(0, 4000), // 截取部分日志避免日志量过大
+          }
+        });
+
+        return JSON.parse(resText);
+      } catch (e) {
+        // 自动记录错误日志
+        debugLog({
+          [`===fetch error： ${url} 接口返回错误`]: {
+            url,
+            init,
+            authId,
+            error: e
+          }
+        });
+        return {
+          code: -1,
+          error: e
+        };
+      }
+    };
+
+    try {
+
+      interface ExchangeRateResponse {
+        rates: {
+          [currency: string]: number
+        }
+      }
+
+      const res = await fetch<ExchangeRateResponse>('https://api.exchangerate-api.com/v4/latest/CNY2', { // 已经在addDomainList中添加为白名单的请求
+        method: 'GET',
       });
 
-      const res = JSON.parse(resText);
       const usdRate = res?.rates?.['USD'];
 
-      
+
       return {
         code: FieldCode.Success,
         data: {
