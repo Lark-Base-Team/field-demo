@@ -6,8 +6,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const block_basekit_server_api_1 = require("@lark-opdev/block-basekit-server-api");
 const querystring_1 = __importDefault(require("querystring"));
 const { t } = block_basekit_server_api_1.field;
-// 通过addDomainList添加请求接口的域名
-block_basekit_server_api_1.basekit.addDomainList(['baidubce.com']);
+const feishuDm = ['feishu.cn', 'feishucdn.com', 'larksuitecdn.com', 'larksuite.com'];
+// 通过addDomainList添加请求接口的域名，不可写多个addDomainList，否则会被覆盖
+block_basekit_server_api_1.basekit.addDomainList([...feishuDm, 'baidubce.com']);
 block_basekit_server_api_1.basekit.addField({
     authorizations: [
         {
@@ -102,77 +103,168 @@ block_basekit_server_api_1.basekit.addField({
     // formItemParams 为运行时传入的字段参数，对应字段配置里的 formItems （如引用的依赖字段）
     execute: async (formItemParams, context) => {
         const { flag, attachments } = formItemParams;
-        /** 为方便查看日志，使用此方法替代console.log */
-        function debugLog(arg) {
+        /**
+         * 为方便查看日志，使用此方法替代console.log
+         * 开发者可以直接使用这个工具函数进行日志记录
+         */
+        function debugLog(arg, showContext = false) {
+            // @ts-ignore
+            if (!showContext) {
+                console.log(JSON.stringify({ arg, logID: context.logID }), '\n');
+                return;
+            }
             console.log(JSON.stringify({
                 formItemParams,
                 context,
                 arg
-            }));
+            }), '\n');
         }
+        /**
+         * 封装好的fetch函数 - 开发者请尽量使用这个封装，而不是直接调用context.fetch
+         * 这个封装会自动处理日志记录和错误捕获，简化开发工作
+         */
+        const fetch = async (url, init, authId) => {
+            try {
+                const res = await context.fetch(url, init, authId);
+                // 不要直接.json()，因为接口返回的可能不是json格式，会导致解析错误
+                const resText = await res.text();
+                // 自动记录请求结果日志
+                debugLog({
+                    [`===fetch res： ${url} 接口返回结果`]: {
+                        url,
+                        init,
+                        authId,
+                        resText: resText.slice(0, 4000), // 截取部分日志避免日志量过大
+                    }
+                });
+                return JSON.parse(resText);
+            }
+            catch (e) {
+                // 自动记录错误日志
+                debugLog({
+                    [`===fetch error： ${url} 接口返回错误`]: {
+                        url,
+                        init,
+                        authId,
+                        error: e
+                    }
+                });
+                return {
+                    code: -1,
+                    error: e
+                };
+            }
+        };
+        ;
+        // 入口第一行日志，展示formItemParams和context，方便调试
+        // 每次修改版本时，都需要修改日志版本号，方便定位问题
+        debugLog('=====start=====v1', true);
         try {
             if (attachments?.[0]) {
                 // 目前 boe 的附件地址外部无法取到，所以先写死固定的url
                 // const imageUrl = attachments?.[0]?.tmp_url;
                 const imageUrl = flag?.value === 'true' && attachments?.[0]?.tmp_url
-                    ? attachments?.[0]?.tmp_url
+                    ? attachments[0].tmp_url
                     : 'https://lf3-static.bytednsdoc.com/obj/eden-cn/eqgeh7upeubqnulog/发票.jpg';
-                const getAccessToken = async () => {
-                    const res = await context
-                        .fetch('https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials', {
-                        method: 'POST',
-                    }, 'baidu')
-                        .then(res => res.json());
-                    return res.access_token;
-                };
-                const accessToken = await getAccessToken();
-                const res = await context
-                    .fetch(`https://aip.baidubce.com/rest/2.0/ocr/v1/vat_invoice?access_token=${accessToken}`, {
+                // 获取百度AI的access_token
+                const resAccessToken = await fetch('https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                }, 'baidu' // 修改../config.json中的authorizations为你自己的client_id和client_secret即可调试authorizations。捷径调试阶段无法看到授权的ui组件。上线之后才能正常显示。
+                );
+                if (resAccessToken.code === -1 || !resAccessToken.access_token) {
+                    /*
+                    如果错误原因明确，想要向使用者传递信息，要避免直接报错，可将错误信息当作成功结果返回：
+                    这样用户界面会显示结果而不是报错，但可以通过结果内容知道发生了什么问题
+                    */
+                    const errorMsg = resAccessToken.error_msg || resAccessToken.error || JSON.stringify(resAccessToken);
+                    return {
+                        code: block_basekit_server_api_1.FieldCode.Success,
+                        data: {
+                            id: Date.now().toString(),
+                            title: `获取百度AI Token失败: ${errorMsg}\nlogid:${context.logID}`,
+                            number: 0,
+                            date: Date.now(),
+                            amount: 0,
+                            tax: 0,
+                            person: '-',
+                        },
+                    };
+                }
+                const accessToken = await resAccessToken.access_token;
+                // 调用百度OCR API识别发票 - 开发者可以修改为自己的OCR服务地址
+                const ocrResponse = await fetch(`https://aip.baidubce.com/rest/2.0/ocr/v1/vat_invoice?access_token=${accessToken}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
-                        Accept: 'application/json',
+                        'Accept': 'application/json',
                     },
                     body: querystring_1.default.stringify({
                         url: imageUrl,
                         seal_tag: 'false',
                     }),
-                })
-                    .then(res => res.json());
-                const data = res?.words_result;
-                if (res.error_msg) {
-                    throw res.error_msg;
+                });
+                // 检查API调用是否成功
+                if (ocrResponse.code === -1 || ocrResponse.error_msg) {
+                    const errorMsg = ocrResponse.error_msg || ocrResponse.error || 'OCR识别失败';
+                    /*
+                    如果错误原因明确，想要向使用者传递信息，要避免直接报错，可将错误信息当作成功结果返回：
+                    这样用户界面会显示结果而不是报错，但可以通过结果内容知道发生了什么问题
+                    */
+                    return {
+                        code: block_basekit_server_api_1.FieldCode.Success,
+                        data: {
+                            id: Date.now().toString(),
+                            title: `OCR处理失败: ${errorMsg}\nlogid:${context.logID}`,
+                            number: 0,
+                            date: Date.now(),
+                            amount: 0,
+                            tax: 0,
+                            person: '-',
+                        },
+                    };
                 }
-                const dateStr = data?.InvoiceDate ?? '';
+                // 处理和格式化识别结果
+                const data = ocrResponse?.words_result || {};
+                const dateStr = data?.InvoiceDate || '';
                 // 请避免使用 debugLog(res) 这类方式输出日志，因为所查到的日志是没有顺序的，为方便排查错误，对每个log进行手动标记顺序
                 debugLog({
-                    '===1 res': res
+                    '===1 res': ocrResponse
                 });
                 const formattedStr = dateStr
                     .replace('年', '-')
                     .replace('月', '-')
                     .replace('日', '');
-                const timestamp = +(new Date(formattedStr));
+                const timestamp = formattedStr ? +(new Date(formattedStr)) : Date.now();
+                /*
+                提取并格式化OCR识别结果
+                注意添加适当的默认值处理，确保即使某些字段未识别也能返回有效数据
+                */
                 return {
                     code: block_basekit_server_api_1.FieldCode.Success,
                     data: {
-                        id: data?.InvoiceNum ?? '',
-                        title: data?.PurchaserName ?? '',
-                        number: Number.parseInt(data?.InvoiceNum, 10),
+                        id: data?.InvoiceNum || Date.now().toString(),
+                        title: data?.PurchaserName || '',
+                        number: Number.parseInt(data?.InvoiceNum || '0', 10),
                         date: timestamp,
-                        amount: Number.parseFloat(data?.TotalAmount),
-                        tax: Number.parseFloat(data?.TotalTax.slice(1)),
-                        person: data?.Payee ?? '',
+                        amount: Number.parseFloat(data?.TotalAmount || '0'),
+                        tax: data?.TotalTax ? Number.parseFloat(data?.TotalTax.replace(/[^\d.]/g, '')) : 0,
+                        person: data?.Payee || '',
                     },
                 };
             }
         }
         catch (e) {
+            // 错误处理 - 开发者可以根据需要添加更详细的错误处理逻辑
             debugLog({
                 '====999 未知错误': String(e)
             });
             /** 返回非 Success 的错误码，将会在单元格上显示报错，请勿返回msg、message之类的字段，它们并不会起作用。
              * 对于未知错误，请直接返回 FieldCode.Error，然后通过查日志来排查错误原因。
+             * 开发者注意：如需展示自定义错误信息，请在catch块中处理并将错误信息作为成功结果返回
              */
             return {
                 code: block_basekit_server_api_1.FieldCode.Error,
@@ -181,11 +273,12 @@ block_basekit_server_api_1.basekit.addField({
         debugLog('===99 未识别到附件');
         /*
           如果错误原因明确，想要向使用者传递信息，要避免直接报错，可将错误信息当作成功结果返回：
+          这样用户界面会显示结果而不是报错，但可以通过结果内容知道发生了什么问题
           */
         return {
             code: block_basekit_server_api_1.FieldCode.Success,
             data: {
-                id: '-',
+                id: Date.now().toString(),
                 title: '未识别到附件。',
                 number: 0,
                 date: Date.now(),
@@ -206,19 +299,19 @@ block_basekit_server_api_1.basekit.addField({
                 {
                     key: 'id',
                     type: block_basekit_server_api_1.FieldType.Text,
-                    title: 'id',
+                    label: 'id',
                     hidden: true,
                 },
                 {
                     key: 'title',
                     type: block_basekit_server_api_1.FieldType.Text,
                     isGroupByKey: true,
-                    title: t('res_title_label'),
+                    label: t('res_title_label'),
                 },
                 {
                     key: 'number',
                     type: block_basekit_server_api_1.FieldType.Number,
-                    title: t('res_number_label'),
+                    label: t('res_number_label'),
                     primary: true,
                     extra: {
                         formatter: block_basekit_server_api_1.NumberFormatter.INTEGER,
@@ -227,7 +320,7 @@ block_basekit_server_api_1.basekit.addField({
                 {
                     key: 'date',
                     type: block_basekit_server_api_1.FieldType.DateTime,
-                    title: t('res_date_label'),
+                    label: t('res_date_label'),
                     extra: {
                         dateFormat: block_basekit_server_api_1.DateFormatter.DATE_TIME_WITH_HYPHEN,
                     },
@@ -235,7 +328,7 @@ block_basekit_server_api_1.basekit.addField({
                 {
                     key: 'amount',
                     type: block_basekit_server_api_1.FieldType.Number,
-                    title: t('res_amount_label'),
+                    label: t('res_amount_label'),
                     extra: {
                         formatter: block_basekit_server_api_1.NumberFormatter.DIGITAL_ROUNDED_2,
                     },
@@ -243,7 +336,7 @@ block_basekit_server_api_1.basekit.addField({
                 {
                     key: 'tax',
                     type: block_basekit_server_api_1.FieldType.Number,
-                    title: t('res_tax_label'),
+                    label: t('res_tax_label'),
                     extra: {
                         formatter: block_basekit_server_api_1.NumberFormatter.DIGITAL_ROUNDED_2,
                     },
@@ -251,11 +344,11 @@ block_basekit_server_api_1.basekit.addField({
                 {
                     key: 'person',
                     type: block_basekit_server_api_1.FieldType.Text,
-                    title: t('res_person_label'),
+                    label: t('res_person_label'),
                 },
             ],
         },
     },
 });
 exports.default = block_basekit_server_api_1.basekit;
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiaW5kZXguanMiLCJzb3VyY2VSb290IjoiIiwic291cmNlcyI6WyIuLi8uLi8uLi9zcmMvaW5kZXgudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6Ijs7Ozs7QUFBQSxtRkFTOEM7QUFDOUMsOERBQXNDO0FBRXRDLE1BQU0sRUFBRSxDQUFDLEVBQUUsR0FBRyxnQ0FBSyxDQUFDO0FBRXBCLDJCQUEyQjtBQUMzQixrQ0FBTyxDQUFDLGFBQWEsQ0FBQyxDQUFDLGNBQWMsQ0FBQyxDQUFDLENBQUM7QUFFeEMsa0NBQU8sQ0FBQyxRQUFRLENBQUM7SUFDZixjQUFjLEVBQUU7UUFDZDtZQUNFLEVBQUUsRUFBRSxPQUFPO1lBQ1gsUUFBUSxFQUFFLE9BQU87WUFDakIsS0FBSyxFQUFFLEtBQUs7WUFDWixJQUFJLEVBQUUsNENBQWlCLENBQUMsb0JBQW9CO1lBQzVDLE1BQU0sRUFBRTtnQkFDTjtvQkFDRSxHQUFHLEVBQUUsV0FBVztvQkFDaEIsV0FBVyxFQUFFLGVBQWU7aUJBQzdCO2dCQUNEO29CQUNFLEdBQUcsRUFBRSxlQUFlO29CQUNwQixXQUFXLEVBQUUsbUJBQW1CO2lCQUNqQzthQUNGO1lBQ0QsZUFBZSxFQUFFLGlEQUFpRDtZQUNsRSxJQUFJLEVBQUU7Z0JBQ0osS0FBSyxFQUFFLDZFQUE2RTtnQkFDcEYsSUFBSSxFQUFFLDZFQUE2RTthQUNwRjtTQUNGO0tBQ0Y7SUFDRCxnQkFBZ0I7SUFDaEIsSUFBSSxFQUFFO1FBQ0osUUFBUSxFQUFFO1lBQ1IsT0FBTyxFQUFFO2dCQUNQLGtCQUFrQixFQUFFLFVBQVU7Z0JBQzlCLGVBQWUsRUFBRSxNQUFNO2dCQUN2QixnQkFBZ0IsRUFBRSxNQUFNO2dCQUN4QixjQUFjLEVBQUUsTUFBTTtnQkFDdEIsZ0JBQWdCLEVBQUUsTUFBTTtnQkFDeEIsYUFBYSxFQUFFLE1BQU07Z0JBQ3JCLGdCQUFnQixFQUFFLEtBQUs7YUFDeEI7WUFDRCxPQUFPLEVBQUU7Z0JBQ1Asa0JBQWtCLEVBQUUsb0JBQW9CO2dCQUN4QyxlQUFlLEVB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
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiaW5kZXguanMiLCJzb3VyY2VSb290IjoiIiwic291cmNlcyI6WyIuLi8uLi8uLi9zcmMvaW5kZXgudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6Ijs7Ozs7QUFBQSxtRkFTOEM7QUFDOUMsOERBQXNDO0FBRXRDLE1BQU0sRUFBRSxDQUFDLEVBQUUsR0FBRyxnQ0FBSyxDQUFDO0FBRXBCLE1BQU0sUUFBUSxHQUFHLENBQUMsV0FBVyxFQUFFLGVBQWUsRUFBRSxrQkFBa0IsRUFBRSxlQUFlLENBQUMsQ0FBQztBQUNyRixxREFBcUQ7QUFDckQsa0NBQU8sQ0FBQyxhQUFhLENBQUMsQ0FBQyxHQUFHLFFBQVEsRUFBRSxjQUFjLENBQUMsQ0FBQyxDQUFDO0FBRXJELGtDQUFPLENBQUMsUUFBUSxDQUFDO0lBQ2YsY0FBYyxFQUFFO1FBQ2Q7WUFDRSxFQUFFLEVBQUUsT0FBTztZQUNYLFFBQVEsRUFBRSxPQUFPO1lBQ2pCLEtBQUssRUFBRSxLQUFLO1lBQ1osSUFBSSxFQUFFLDRDQUFpQixDQUFDLG9CQUFvQjtZQUM1QyxNQUFNLEVBQUU7Z0JBQ047b0JBQ0UsR0FBRyxFQUFFLFdBQVc7b0JBQ2hCLFdBQVcsRUFBRSxlQUFlO2lCQUM3QjtnQkFDRDtvQkFDRSxHQUFHLEVBQUUsZUFBZTtvQkFDcEIsV0FBVyxFQUFFLG1CQUFtQjtpQkFDakM7YUFDRjtZQUNELGVBQWUsRUFBRSxpREFBaUQ7WUFDbEUsSUFBSSxFQUFFO2dCQUNKLEtBQUssRUFBRSw2RUFBNkU7Z0JBQ3BGLElBQUksRUFBRSw2RUFBNkU7YUFDcEY7U0FDRjtLQUNGO0lBQ0QsZ0JBQWdCO0lBQ2hCLElBQUksRUFBRTtRQUNKLFFBQVEsRUFBRTtZQUNSLE9BQU8sRUFBRTtnQkFDUCxrQkFBa0IsRUFBRSxVQUFVO2dCQUM5QixlQUFlLEVBQUUsTUFBTTtnQkFDdkIsZ0JBQWdCLEVBQUUsTUFBTTtnQkFDeEIsY0FBYyxFQUFFLE1BQU07Z0JBQ3RCLGdCQUFnQixFQUFFLE1BQU07Z0JBQ3hCLGFBQWEsRUFBRSxN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
