@@ -4,18 +4,17 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "block-basekit-cli start:field",
-    "build": "block-basekit-cli build:field",
-    "pack": "block-basekit-cli pack:field",
-    "test": "block-basekit-cli test:field",
-    "dev": "block-basekit-cli dev:field"
+    "start": "lark-base-open-cli start:field",
+    "build": "lark-base-open-cli build:field",
+    "pack": "lark-base-open-cli pack:field",
+    "dev": "lark-base-open-cli dev:field"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@lark-opdev/block-basekit-cli": "1.0.5"
+   "@lark-base-open/cli": "1.0.1-alpha.11"
   },
   "dependencies": {
-    "@lark-opdev/block-basekit-server-api": "1.0.6"
+    "@lark-base-open/faas-sdk": "1.0.1-alpha.8"
   }
 }

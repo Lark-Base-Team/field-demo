@@ -1,4 +1,4 @@
-import { basekit, FieldType, field, FieldComponent, FieldCode, NumberFormatter, AuthorizationType } from '@lark-opdev/block-basekit-server-api';
+import { basekit, FieldType, field, FieldComponent, FieldCode, NumberFormatter, AuthorizationType, ModelType } from '@lark-base-open/faas-sdk';
 const { t } = field;
 const feishuDm = ['feishu.cn', 'feishucdn.com', 'larksuitecdn.com', 'larksuite.com'];
 // 通过addDomainList添加请求接口的域名，不可写多个addDomainList，否则会被覆盖
