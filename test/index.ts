@@ -1,4 +1,4 @@
-import { testField, createFieldContext } from "@lark-opdev/block-basekit-server-api";
+import { testField, createFieldContext } from "@lark-base-open/faas-sdk";
 
 async function run() {
     const context = await createFieldContext();
